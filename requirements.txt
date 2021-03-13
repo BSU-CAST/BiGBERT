@@ -1,0 +1,11 @@
+flair==0.6.1
+keras==2.3.1
+keras-self-attention==0.42.0
+numpy==1.18.5
+pandas==1.0.5
+pytorch-pretrained-bert==0.6.2
+sklearn
+symspellpy==6.7.0
+tensorflow==2.2.0
+torch==1.5.1
+tqdm==4.59.0
