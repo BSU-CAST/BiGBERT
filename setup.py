@@ -68,7 +68,7 @@ def setup_embeddings(embedding="edu2vec"):
     embeddings_dict = {}
     embedding_file = embeddings[embedding]
     with open(embedding_file, 'r', encoding="utf8") as f:
-        for line in tqdm(f):
+        for line in tqdm(f, desc="Generating embedding dictionary", unit='B', unit_scale=True, unit_divisor=1024):
             values = line.split()
             word = values[0]
             vector = np.asarray(values[1:], "float32")  # Shape of (300,)

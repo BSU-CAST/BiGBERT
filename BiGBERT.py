@@ -33,7 +33,7 @@ class BiGBERT(object):
                             tokens.append(suggestions[0].term)
         return tokens
 
-    def _data_prep(self, df):
+    def _data_prep(self, df, y=None):
         # Preprocessing
         df['tokens_new'] = df['url'].apply(lambda x: self._preprocess_url(x))
         df['text'] = df.apply(lambda x: ' '.join(x['tokens_new']), axis=1)
@@ -41,16 +41,17 @@ class BiGBERT(object):
         tokenizer = Tokenizer()
         tokenizer.fit_on_texts(texts)
         sequences = tokenizer.texts_to_sequences(texts)
-        word_index = tokenizer.word_index
         data = pad_sequences(sequences, maxlen=10, padding="post", truncating="post")
         df['url_sequences'] = data.tolist()
+        if y is not None:
+            df['target'] = y
 
-        return df, word_index
+        return df
 
-    def fit(self, data, folds=5, **kwargs):
+    def fit(self, x, y, folds=5, **kwargs):
         epochs = kwargs.get("epochs", 50)
         batch_size = kwargs.get("batch_size", 128)
-        df, word_index = self._data_prep(data)
+        df = self._data_prep(x, y)
         df = get_bert_embeddings(df, self._bert_with_edu)
 
         df = df.sample(frac=1, random_state=0)
@@ -81,16 +82,27 @@ class BiGBERT(object):
             self._bigbert.fit(x=fit_input_x, y=y_train, validation_data=(fit_input_val, y_val),
                               epochs=epochs, batch_size=batch_size)
 
-    def evaluate(self, data, score_fn):
+    def evaluate(self, x, y, score_fn):
         """
         Alias for `score()`
         :param kwargs:
         :return:
         """
-        return self.score(data, score_fn)
+        return self.score(x, y, score_fn)
 
-    def score(self, data, score_fn):
-        df, word_index = self._data_prep(data)
+    def predict(self, x):
+        df = self._data_prep(x)
+        df = get_bert_embeddings(df, self._bert_with_edu)
+
+        url_seq = np.array(df['url_sequences'].to_list())
+
+        big_vec = self._bigru.predict(url_seq)
+        bert_vec = np.array(df['bert_vector'].to_list())
+
+        return self._bigbert.predict([big_vec, bert_vec])
+
+    def score(self, x, y, score_fn):
+        df = self._data_prep(x, y)
         df = get_bert_embeddings(df, self._bert_with_edu)
         url_seq = np.array(df["url_sequences"].to_list())
         features = [self._bigru.predict(url_seq), np.array(df["bert_vector"].to_list())]
