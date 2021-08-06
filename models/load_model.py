@@ -6,8 +6,12 @@ from keras.models import load_model
 from keras_self_attention import SeqSelfAttention  # pip install keras-self-attention==0.42.0
 
 
+MODELS_DIR = Path(__file__).resolve().parent
+
+
 def load_bigru():
-    new_model = load_model("../models/bigru.h5", custom_objects={"SeqSelfAttention": SeqSelfAttention})
+    bigru_path = Path(MODELS_DIR).joinpath("bigru.h5")
+    new_model = load_model(bigru_path, custom_objects={"SeqSelfAttention": SeqSelfAttention})
     optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.001, momentum=0.2)
     new_model.compile(loss='binary_crossentropy',
                       optimizer=optimizer,
@@ -16,8 +20,8 @@ def load_bigru():
 
 
 def load_bert_with_edu():
-    bertedu_path = "../models/bertedu_1e-6lr.p"
-    if not Path(bertedu_path).exists():
+    bertedu_path = Path(MODELS_DIR).joinpath("bertedu_1e-6lr.p")
+    if not bertedu_path.exists():
         bertedu_pub_storage = "https://drive.google.com/uc?id=116pGILUWd9m4QFCbWJnlP8UdVBtCGVny"
         gdown.download(bertedu_pub_storage, bertedu_path, quiet=False)
 
@@ -26,9 +30,15 @@ def load_bert_with_edu():
 
 
 def load_bigbert():
-    built_model = load_model("../models/bigbert.h5")
+    bigbert_path = Path(MODELS_DIR).joinpath("bigbert.h5")
+    built_model = load_model(bigbert_path)
     optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.001, momentum=0.2)
     built_model.compile(loss='binary_crossentropy',
                         optimizer=optimizer,
                         metrics=['accuracy'])
     return built_model
+
+
+if __name__ == "__main__":
+    bertedu_path = Path(MODELS_DIR).joinpath("bertedu_1e-6lr.p")
+    print(bertedu_path.exists(), Path(bertedu_path).exists())
