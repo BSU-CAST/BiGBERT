@@ -7,6 +7,9 @@ from symspellpy.symspellpy import SymSpell, Verbosity
 from tqdm import tqdm
 
 
+DATA_DIR = Path(__file__).resolve().parent.joinpath("data")
+
+
 def bert_embed_sentence(sent, embeddings):
     # create a sentence
     sentence = Sentence(sent)
@@ -15,12 +18,12 @@ def bert_embed_sentence(sent, embeddings):
     return sentence.get_embedding().cpu().detach().numpy()
 
 
-def get_bert_embeddings(df, bert):
+def get_bert_embeddings(df, bert, desc):
     # Swap to GPU if it's available
     if torch.cuda.is_available():
         bert.cuda()
 
-    tqdm.pandas(desc="BERT Vectors")
+    tqdm.pandas(desc=desc)
     df['description'] = df['description'].progress_apply(lambda x: re.sub(r'[^A-Za-z0-9 ]+', '', x).lower())
     df['bert_vector'] = df['description'].progress_apply(lambda x: bert_embed_sentence(str(x), bert))
 
@@ -46,19 +49,20 @@ def pre_proc_url(url, embeddings_dict, segmenter, spellchecker):
 
 
 def setup_symspell():
+    dictionary_path = Path(DATA_DIR).joinpath("frequency_dictionary_en_82_765.txt")
     sym_spell = SymSpell(max_dictionary_edit_distance=0, prefix_length=7)
-    sym_spell.load_dictionary('../data/frequency_dictionary_en_82_765.txt', term_index=0, count_index=1)
+    sym_spell.load_dictionary(str(dictionary_path), term_index=0, count_index=1)
 
     # SymSpell for spellchecking
     sym_spell1 = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
-    sym_spell1.load_dictionary('../data/frequency_dictionary_en_82_765.txt', term_index=0, count_index=1)
+    sym_spell1.load_dictionary(str(dictionary_path), term_index=0, count_index=1)
 
     return sym_spell, sym_spell1
 
 
 def setup_embeddings(embedding="edu2vec"):
     embeddings = {
-        "edu2vec": "../data/edu2Vec.txt"
+        "edu2vec": str(Path(DATA_DIR).joinpath("edu2Vec.txt"))
     }
 
     if not Path(embeddings[embedding]).exists():

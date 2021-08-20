@@ -1,9 +1,9 @@
-from models.load_model import load_bigru, load_bert_with_edu, load_bigbert
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.utils import to_categorical
+from .load_model import load_bigru, load_bert_with_edu, load_bigbert
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import StratifiedKFold
-from setup import *
+from .util import *
 
 
 class BiGBERT(object):
@@ -52,7 +52,7 @@ class BiGBERT(object):
         epochs = kwargs.get("epochs", 50)
         batch_size = kwargs.get("batch_size", 128)
         df = self._data_prep(x, y)
-        df = get_bert_embeddings(df, self._bert_with_edu)
+        df = get_bert_embeddings(df, self._bert_with_edu, desc="BERT Vectors (fit)")
 
         df = df.sample(frac=1, random_state=0)
         skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
@@ -92,7 +92,7 @@ class BiGBERT(object):
 
     def predict(self, x):
         df = self._data_prep(x)
-        df = get_bert_embeddings(df, self._bert_with_edu)
+        df = get_bert_embeddings(df, self._bert_with_edu, desc="BERT Vectors (predict)")
 
         url_seq = np.array(df['url_sequences'].to_list())
 
@@ -103,7 +103,7 @@ class BiGBERT(object):
 
     def score(self, x, y, score_fn):
         df = self._data_prep(x, y)
-        df = get_bert_embeddings(df, self._bert_with_edu)
+        df = get_bert_embeddings(df, self._bert_with_edu, desc="BERT Vectors (score)")
         url_seq = np.array(df["url_sequences"].to_list())
         features = [self._bigru.predict(url_seq), np.array(df["bert_vector"].to_list())]
         y_pred = self._bigbert.predict(features)

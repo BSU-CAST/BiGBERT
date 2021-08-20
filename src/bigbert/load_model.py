@@ -6,7 +6,7 @@ from keras.models import load_model
 from keras_self_attention import SeqSelfAttention  # pip install keras-self-attention==0.42.0
 
 
-MODELS_DIR = Path(__file__).resolve().parent
+MODELS_DIR = Path(__file__).resolve().parent.joinpath("models")
 
 
 def load_bigru():
@@ -23,10 +23,9 @@ def load_bert_with_edu():
     bertedu_path = Path(MODELS_DIR).joinpath("bertedu_1e-6lr.p")
     if not bertedu_path.exists():
         bertedu_pub_storage = "https://drive.google.com/uc?id=116pGILUWd9m4QFCbWJnlP8UdVBtCGVny"
-        gdown.download(bertedu_pub_storage, bertedu_path, quiet=False)
+        gdown.download(bertedu_pub_storage, str(bertedu_path), quiet=False)
 
-
-    return pickle.load(open("../models/bertedu_1e-6lr.p", "rb"))
+    return pickle.load(open(bertedu_path, "rb"))
 
 
 def load_bigbert():
@@ -37,8 +36,3 @@ def load_bigbert():
                         optimizer=optimizer,
                         metrics=['accuracy'])
     return built_model
-
-
-if __name__ == "__main__":
-    bertedu_path = Path(MODELS_DIR).joinpath("bertedu_1e-6lr.p")
-    print(bertedu_path.exists(), Path(bertedu_path).exists())

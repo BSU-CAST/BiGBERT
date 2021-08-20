@@ -1,0 +1,7 @@
+include src/bigbert/data/frequency_dictionary_en_82_765.txt
+include src/bigbert/models/bigbert.h5
+include src/bigbert/models/bigru.h5
+exclude src/bigbert/data/alexa_4000_sites.csv
+exclude src/bigbert/data/edu2Vec.txt
+exclude src/bigbert/models/bertedu_1e-6lr.p
+exclude tests/*

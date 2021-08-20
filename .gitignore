@@ -1,8 +1,8 @@
 # Project specific
-data/alexa*
-data/edu2Vec.txt
+src/bigbert/data/alexa*
+src/bigbert/data/edu2Vec.txt
 tests/
-models/bertedu_1e-6lr.p
+src/bigbert/models/bertedu_1e-6lr.p
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
