@@ -8,6 +8,6 @@ pytorch-pretrained-bert==0.6.2
 sklearn
 symspellpy==6.7.0
 tensorflow==2.2.0
-torch==1.9.1
+torch==1.7.1
 transformers==3.5.1
 tqdm==4.59.0
